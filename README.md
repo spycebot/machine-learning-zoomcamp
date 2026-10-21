@@ -10,7 +10,7 @@ Articles: https://github.com/DataTalksClub/machine-learning-zoomcamp
 Homework: https://courses.datatalks.club/ml-zoomcamp-2026/
 
 
-### Chapter 1: Introduction
+### Chapter 1: Introduction to Machine Learning
 
 ML Zoomcamp 1.1 - Introduction
 
@@ -133,11 +133,11 @@ In the modern context, Evaluation and Deployment are often the same step. The wa
 
 Monitoring comes in here. Here we also determine how maintainable is the model.
 
-### Chapter 2: Car Prices
+### Chapter 2: Machine Learning for Regression (Car Prices)
 
 https://www.youtube.com/watch?v=vM3SqPNlStE&list=PL3MmuxUbc_hIhxl5Ji8t4O6lPAOpHaCLR&index=13
 
-### 2.1 Car Price Prediction Project 
+#### 2.1 Car Price Prediction Project 
 
 How can we help ouir user select the best price? For this project we will use a dataset from Kaggle. The file `data.csv` is 1.41 MB.S ixteen (16) columns, 
 
@@ -160,7 +160,7 @@ Project Plan
 
 Code: https://github.com/alexeygrigorev/mlbookcamp-code/tree/master/chapter-02-car-price
 
-### 2.2 Data Preparation
+#### 2.2 Data Preparation
 
 """
 import pandas as pd
@@ -178,11 +178,11 @@ df = pd.read_csv('data.csv')
 
 `!wget` is the Jupyter notebook Python command for loading a dataset from the web into the notebook environment. The subsequet command `pd.read_csv()` is a Pandas cunction that loads the data from the environment into the notebook itself.
 
-#### Inconsistent Headers
+##### Inconsistent Headers
 
 For this Kaggle car price data set, there is an inconsistency in how the columns are labeled. Some column headers have spaces, others have underscores in place of spaces. For consistency, we will make all headers lowercase, and replace all spaces with underscores. `df.columns` is the Pandas field that gives us all of the column headers. This data is actually of a special type, called `Index()` `df.columns.str` allows us to do string manipulations on the column headers. So in this case, we will use `df.columns.str.lower()` to make all column headers lower case. Follow that with `df.columns. str.replace(' ', '_')`, and for compactness combine both statements into one: `df.columns = df.columns.str.lower().str.replace(' ', '_')`, writing it back to the original field.
 
-#### Inconsistent Data
+##### Inconsistent Data
 
 `df.dtypes` tells us the data type of each and every column. We are not concerned with the capitalisation of the columns that are numbers of type `int64` and `float64`, but we are intereste din the columns that asre of type `object`.
 
@@ -195,7 +195,7 @@ for col in strings:
 
 Now when we look at the data we see that it is much cleaner and more consistent.
 
-### 2.3 Exploratory Data Analysis
+#### 2.3 Exploratory Data Analysis
 
 It is helpfull to look at the numbe of unique values that each column has, as well as a sample selection of those unique values.
 
@@ -258,11 +258,11 @@ price_logs = np.log1p(df.msrp)
 sns.histplot(pricelogs, bins=50)
 """
 
-#### Missing Values
+##### Missing Values
 
 In Pandas `nan` means the value was not recorded and is missing. The function `df.isnull()` tells us whether the value in the function is null (missing) or not.  When we chain it with `sum()`, it tells us how many null values there are in a given column: `df.isnull().sum()`.
 
-### 2.4 Setting up the Validation Framework
+#### 2.4 Setting up the Validation Framework
 
 For validating the model, we need to take our data set, and split into three parts:
 1. Training X<sup>T</sub>y<sup>T</sub> , 60%
@@ -365,6 +365,47 @@ del df_test['msrp']
 So after splitting the data, remove the target variable from the data frame, to make sure that we do not accidentally use it for training purposes.
 
 
-#### Recap
+##### Recap
 
 For this lesson we implemented the framework for validation where the data is split into training, validation and test sets. We did not use a library for this, we just used plain Pandas and Numpy to make this split. In the next lesson we will dive into linear regression.
+
+-----
+
+### Chapter 3: Classification (Machine Learning for Classification)
+
+
+
+-----
+
+### Chapter 4: Evaluation Metrics for Classification
+
+
+
+-----
+
+### Chapter 5: Deploying Machine Learning Models
+
+
+-----
+
+### Chapter 6: Decision Trees and Ensemble Learning
+
+
+-----
+
+### Chapter 7: Midterm Project
+
+
+-----
+
+### Chapter 8: Neural Networks and Deep Learning
+
+
+-----
+
+### Chapter 9: Serverless Deep Learning
+
+
+-----
+
+### Chapter 10: Kubernetes and TensorFlow Serving
