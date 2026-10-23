@@ -385,6 +385,82 @@ For this lesson we implemented the framework for validation where the data is sp
 
 ### Chapter 5: Deploying Machine Learning Models
 
+#### 5.5: Python Virtual Environments
+
+Managing virtual environments.
+
+Used to keep different versions of packages separate, so that applications requiring different versions of packages can continue to run on the same system. Each version is stored in its own folder.
+
+Avalable virtual environment managers:
+1. virtualenv
+1. conda
+1. pipenv
+1. poetry
+1. and more!
+
+They all essentally work in the same way.
+
+$ pip install pipenv
+$ pipenv install numpy scikit-learn flask
+$ pipenv install gunicorn
+$ pipenv shell
+Launching subsheel in virtual environment...
+$ which gunicorn
+/home/ubuntu/.local/share/virtualvenvs/machine-MiDjhWxs/bin/gunicorn
+$ gunicorn --bind 0.0.0.0:9696 predict:app
+[Ctrl+C]
+$ pipenv run gunicorn --bind 0.0.0.0:9696 predict:app
+
+Virtual environments work by prepending specific paths to the $PATH variarble. 
+
+`$ pipenv install numpy scikit-learn==0.24.2 flask` causes a version mismatch between Python and scikit-learn. Pip does not find a prebuilt wheel, so it tries to compile scikit-learn from source. The compilation fails.
+
+#### 5.6: Environment Management with Docker
+
+Virtual environments allow different services to use different **Python** dependencies. There are often cases where different services need different **system** dependencies. In this case virtual environments cannot help us, but an environment manager can.
+
+With Docker the entire application can be isolated from the rest of the things that are running on our computer. 
+
+A.k.a. containerisation.
+
+Search: "docker python image"
+hub.docker.com/_/python
+E.g. 3.8.12-slim
+$ docker run -it --rm python:3.8.12-slim
+>>> vars()
+>>> exit()
+$ docker run -it --rm --entrypoint=bash python:3.8.12-slim
+# ls -la usr/local/games
+
+Everything that we want to do in the Docker image, we can define in the Dockerfile.
+
+$ docker build -t zoomcamp-test
+
+Question: The Docker image contains a complete albeit stripped down file system. How is a Docker container different from a (mini) virtual machine?
+
+From the above command, I see that the Docker image contains only the files that were copied into it.
+
+The below runs the Pipfile inside the Docker image
+
+$ docker run -it --rm --entrypoint=bash zoomcamp-test
+...
+:/app# pipenv install
+
+After adding to Dockerfile:
+RUN pipenv install --system --deploy
+
+We can run:
+$ docker run -it --rm zoomcamp-test:latest
+
+N.B. Alexey's
+FROM python:3.8.12-slim
+
+as the first line in the dockerfile is incompatible with current versions of numpy and scikit-learn which do not support Python 3.8. Instead, use:
+FROM python:3.14-slim
+
+Now gunicorn is running, but we cannot access the URL, because the port is not exposed. Portmapping maps the port that we have on our container to the port that we have on the host machine.
+
+$ docker run -it --rm -p 9696:9696 zoomcamp-test
 
 -----
 
