@@ -355,12 +355,10 @@ For training and validation, we use Numpy values rather than Pandas values.
 
 The last thing we do in the validation segment is do remove the msrp variable from our dataframe. This avoids the case where we accidentially use these values in our training run. If we use the price variable as a feature for predecting price, our model will appear to be perfect, requiring us to spend a lot of time to figure out what the problem actually is.
 
-"""
-del df_train['msrp']
-del df_val['msrp']
-del df_test['msrp']
+    del df_train['msrp']
+    del df_val['msrp']
+    del df_test['msrp']
 
-"""
 
 So after splitting the data, remove the target variable from the data frame, to make sure that we do not accidentally use it for training purposes.
 
@@ -400,20 +398,21 @@ Avalable virtual environment managers:
 
 They all essentally work in the same way.
 
-$ pip install pipenv
-$ pipenv install numpy scikit-learn flask
-$ pipenv install gunicorn
-$ pipenv shell
-Launching subsheel in virtual environment...
-$ which gunicorn
-/home/ubuntu/.local/share/virtualvenvs/machine-MiDjhWxs/bin/gunicorn
-$ gunicorn --bind 0.0.0.0:9696 predict:app
-[Ctrl+C]
-$ pipenv run gunicorn --bind 0.0.0.0:9696 predict:app
+    $ pip install pipenv
+    $ pipenv install numpy scikit-learn flask
+    $ pipenv install gunicorn
+    $ pipenv shell
+    Launching subsheel in virtual environment...
+    $ which gunicorn
+    /home/ubuntu/.local/share/virtualvenvs/machine-MiDjhWxs/bin/gunicorn
+    $ gunicorn --bind 0.0.0.0:9696 predict:app
+    [Ctrl+C]
+    $ pipenv run gunicorn --bind 0.0.0.0:9696 predict:app
 
 Virtual environments work by prepending specific paths to the $PATH variarble. 
 
 `$ pipenv install numpy scikit-learn==0.24.2 flask` causes a version mismatch between Python and scikit-learn. Pip does not find a prebuilt wheel, so it tries to compile scikit-learn from source. The compilation fails.
+
 
 #### 5.6: Environment Management with Docker
 
@@ -426,15 +425,15 @@ A.k.a. containerisation.
 Search: "docker python image"
 hub.docker.com/_/python
 E.g. 3.8.12-slim
-$ docker run -it --rm python:3.8.12-slim
->>> vars()
->>> exit()
-$ docker run -it --rm --entrypoint=bash python:3.8.12-slim
-# ls -la usr/local/games
+    $ docker run -it --rm python:3.8.12-slim
+    >>> vars()
+    >>> exit()
+    $ docker run -it --rm --entrypoint=bash python:3.8.12-slim
+    $ ls -la usr/local/games
 
 Everything that we want to do in the Docker image, we can define in the Dockerfile.
 
-$ docker build -t zoomcamp-test
+    $ docker build -t zoomcamp-test
 
 Question: The Docker image contains a complete albeit stripped down file system. How is a Docker container different from a (mini) virtual machine?
 
@@ -442,25 +441,33 @@ From the above command, I see that the Docker image contains only the files that
 
 The below runs the Pipfile inside the Docker image
 
-$ docker run -it --rm --entrypoint=bash zoomcamp-test
-...
-:/app# pipenv install
+    $ docker run -it --rm --entrypoint=bash zoomcamp-test
+    ...
+    :/app# pipenv install
 
 After adding to Dockerfile:
-RUN pipenv install --system --deploy
+    RUN pipenv install --system --deploy
 
 We can run:
-$ docker run -it --rm zoomcamp-test:latest
+    $ docker run -it --rm zoomcamp-test:latest
 
 N.B. Alexey's
-FROM python:3.8.12-slim
+    FROM python:3.8.12-slim
 
 as the first line in the dockerfile is incompatible with current versions of numpy and scikit-learn which do not support Python 3.8. Instead, use:
-FROM python:3.14-slim
+    FROM python:3.14-slim
 
 Now gunicorn is running, but we cannot access the URL, because the port is not exposed. Portmapping maps the port that we have on our container to the port that we have on the host machine.
 
-$ docker run -it --rm -p 9696:9696 zoomcamp-test
+    $ docker run -it --rm -p 9696:9696 zoomcamp-test
+
+
+#### 5.6: Environment Management with Docker
+
+
+
+
+
 
 -----
 
