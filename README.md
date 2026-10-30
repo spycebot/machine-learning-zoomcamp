@@ -474,6 +474,25 @@ Now gunicorn is running, but we cannot access the URL, because the port is not e
 ### Chapter 6: Decision Trees and Ensemble Learning
 
 
+#### 6.1: Credit Risk Scoring Project
+
+Default is when the customer does not pay back the money borrowed from the bank. The model in this lesson will return the likelyhood of default.
+
+The bank will use this service to make the decision of whether to lend to the customer or not.
+
+The bank has historical information about (all) past customers.
+
+This is a binary classification problem
+
+$y_{i}\{0, 1\}$
+
+0 is okay
+1 is default
+
+$g(x_{i}) \rightarrow $ probability of default
+
+
+
 -----
 
 ### Chapter 7: Midterm Project
