@@ -493,9 +493,172 @@ $y_{i}\{0, 1\}$
 0 is okay
 1 is default
 
-$g(x_{i}) \rightarrow $ probability of default
+$g(x_{i}) \rightarrow$ probability of default
 
 
+##### Re-encoding the categorical variables
+
+Re-encoding the categorical variables
+The columns status, home, marital, records and job are categorical, but in the file they are encoded as numbers. For example, status is 1, 2 or 0. That's not very intuitive, so we decode them into strings.
+
+We will use pd.map() to first translate the numbers into strings(), and do this for 
+
+- status_values
+- home_values
+- marital_values
+- records_values
+- job_values
+
+
+    status_values = {
+        1: 'ok',
+        2: 'default',
+        0: 'unk'
+    }
+
+    df.status = df.status.map(status_values)
+
+
+##### Missing Values
+"Not every problem shows up as a missing value. Let's look at the summary statistics:"
+
+    df.describe().round()
+
+The maximum values of income, assets and debt look suspicious: 99999999. This dataset encodes missing values as a long number of nines. Instead of NaN, "unknown" became 99999999. We replace these values with NaN:
+
+    for c in ['income', 'assets', 'debt']:
+        df[c] = df[c].replace(to_replace=99999999, value=np.nan)
+
+
+##### Removing the One Record with a Status of Unknown
+
+We also have that single customer with status unk. Since we only care about the two classes - ok and default - we remove this row:
+
+Make a new dataframe from the old dataframe using every record, so long as the status is not 'unk'. Then reset the dataframe index
+
+    df = df[df.status != 'unk'].reset_index(drop=True)
+
+
+##### Split source data in to Train / Validation / Test
+
+Now we split the data. As in the previous modules, we do it in two steps: first we split off the test set (20%), then we split the rest into train and validation (75/25 of what remains, which gives us the 60/20/20 distribution):
+
+    from sklearn.model_selection import train_test_split
+
+    df_full_train, df_test = train_test_split(df, test_size=0.2, random_state=11)
+    df_train, df_val = train_test_split(df_full_train, test_size=0.25, random_state=11)
+
+We reset the indexes so they are fresh and unique in each dataframe:
+
+    df_train = df_train.reset_index(drop=True)
+    df_val = df_val.reset_index(drop=True)
+    df_test = df_test.reset_index(drop=True)
+    Preparing the Target Variable
+    The models give us a probability, so the target needs to be a number. We encode status: 0 for ok, 1 for default:
+
+    y_train = (df_train.status == 'default').astype('int').values
+    y_val = (df_val.status == 'default').astype('int').values
+    y_test = (df_test.status == 'default').astype('int').values
+    del df_train['status']
+    del df_val['status']
+    del df_test['status']
+    Finally, we delete status from the dataframes - otherwise we would use the target as a feature, and the model would learn to cheat:
+
+
+##### Preparing the Target Variable
+
+The models give us a probability, so the target needs to be a number. We encode status: 0 for ok, 1 for default:
+
+    y_train = (df_train.status == 'default').astype('int').values
+    y_val = (df_val.status == 'default').astype('int').values
+    y_test = (df_test.status == 'default').astype('int').values
+
+Delete target `status` column so that it is not used in training.
+
+    del df_train['status']
+    del df_val['status']
+    del df_test['status']
+
+
+##### Decision Trees
+
+We train our first decision tree with scikit-learn on the credit scoring data, see what overfitting looks like, and learn how to control the size of a tree. The following function is an algorithm that could be used to perform credit scoring.
+
+    def assess_risk(client):
+        if client['records'] == 'yes':
+            if client['job'] == 'parttime':
+                return 'default'
+            else:
+                return 'ok'
+        else:
+            if client['assets'] > 6000:
+                return 'ok'
+            else:
+                return 'default'
+
+
+Test this hard coded decision tree
+
+    xi = df_train.iloc[0].to_dict()
+    assess_risk(xi)
+
+>> 'ok'
+
+
+###### Training a Decision Tree
+
+We use `DecisionTreeClassifier` from **scikit-learn** . The features are mixed: numeric columns and categorical ones we encoded as strings. We turn each row into a dictionary, fill the missing values with 0, and use `DictVectorizer`to convert the dictionaries into a feature matrix:
+
+    from sklearn.tree import DecisionTreeClassifier
+    from sklearn.feature_extraction import DictVectorizer
+    from sklearn.metrics import roc_auc_score
+    from sklearn.tree import export_text
+
+
+Fill the missing values with 0
+
+    train_dicts = df_train.fillna(0).to_dict(orient='records')
+
+Use `DictVectorizer` to convert the dictionaries into a feature matrix
+
+
+    dv = DictVectorizer(sparse=False)
+    X_train = dv.fit_transform(train_dicts)
+
+
+`DictVectorizer` one-hot encodes the categorical features - it creates columns like job=partime and records=no - and leaves the numeric ones unchanged.
+
+Now we train the tree:
+
+    dt = DecisionTreeClassifier()
+    dt.fit(X_train, y_train)
+
+>> DecisionTreeClassifier()
+
+>> In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook.
+>> On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.
+
+And check how it performs on the validation set
+
+    val_dicts = df_val.fillna(0).to_dict(orient='records')
+    X_val = dv.transform(val_dicts)
+
+    y_pred = dt.predict_proba(X_val)[:, 1]
+    roc_auc_score(y_val, y_pred)
+
+>> 0.6605434598338621
+
+
+##### Overfitting
+
+An AUC of 0.65 is not great. What about the data the model was trained on?
+
+Overfitting is essentially memorizing the data, but failing to generalise.
+
+    y_pred = dt.predict_proba(X_train)[:, 1]
+    roc_auc_score(y_train, y_pred)
+
+>> 1.0
 
 -----
 
